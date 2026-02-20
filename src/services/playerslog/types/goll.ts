@@ -39,3 +39,18 @@ export interface GollReaction {
   type: 'like';
   createdAt: string;
 }
+
+export type GollReportStatus = 'pending' | 'resolved' | 'dismissed';
+
+export interface GollReport {
+  id: number;
+  gollId: number;
+  reporterId: string;
+  reason: string;
+  detail: string | null;
+  reporterTeam: string | null;
+  authorTeam: string | null;
+  isSameTeam: boolean;
+  status: GollReportStatus;
+  createdAt: string;
+}

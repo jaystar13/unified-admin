@@ -11,6 +11,7 @@ import PLGames from './services/playerslog/pages/Games'
 import PLLive from './services/playerslog/pages/Live'
 import PLSettlements from './services/playerslog/pages/Settlements'
 import PLGolls from './services/playerslog/pages/Golls'
+import PLReports from './services/playerslog/pages/Reports'
 import PLUsers from './services/playerslog/pages/Users'
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
           <Route path="live" element={<PLLive />} />
           <Route path="settlements" element={<PLSettlements />} />
           <Route path="golls" element={<PLGolls />} />
+          <Route path="reports" element={<PLReports />} />
           <Route path="users" element={<PLUsers />} />
         </Route>
       </Route>

@@ -44,6 +44,18 @@ export const MVP_POSITION = {
   BOTTOM: 'Bottom',
 } as const;
 
+export const GOLL_REPORT_STATUS = {
+  PENDING: 'pending',
+  RESOLVED: 'resolved',
+  DISMISSED: 'dismissed',
+} as const;
+
+export const GOLL_REPORT_STATUS_LABEL: Record<string, string> = {
+  pending: '대기중',
+  resolved: '처리완료',
+  dismissed: '기각',
+} as const;
+
 export const CANCELLATION_REASONS = [
   '우천취소',
   '미세먼지',

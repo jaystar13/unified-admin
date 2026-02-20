@@ -8,6 +8,7 @@ import {
   Users,
   LogOut,
   ChevronDown,
+  Flag,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useAuth } from '@/shared/hooks/useAuth'
@@ -37,6 +38,7 @@ const serviceGroups: ServiceGroup[] = [
       { name: '라이브 운영', href: '/playerslog/live', icon: Radio },
       { name: '정산 관리', href: '/playerslog/settlements', icon: Calculator },
       { name: '작성 로그 관리', href: '/playerslog/golls', icon: FileText },
+      { name: '신고 관리', href: '/playerslog/reports', icon: Flag },
       { name: '사용자 관리', href: '/playerslog/users', icon: Users },
     ],
   },
