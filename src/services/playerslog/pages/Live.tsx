@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { useGames, useUpdateGame } from '@/services/playerslog/hooks/useGames';
 import type { Game, UpdateGameInput } from '@/services/playerslog/types';
-import { GAME_STATUS } from '@/services/playerslog/constants';
+import { GAME_STATUS, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
 
 export default function Live() {
   const [targetDate, setTargetDate] = useState(new Date().toISOString().split('T')[0]);
@@ -147,7 +147,7 @@ export default function Live() {
               {/* Header */}
               <div className="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-500">{game.stadium}</span>
+                  <span className="text-xs font-semibold text-slate-500">{getStadiumDisplayName(game.stadium)}</span>
                   <span className="text-xs text-slate-400">|</span>
                   <span className="text-xs font-semibold text-slate-500">{game.time}</span>
                 </div>
@@ -173,7 +173,7 @@ export default function Live() {
                 <div className="flex items-center justify-between mb-2">
                   {/* Home Team */}
                   <div className="flex flex-col items-center w-1/3 gap-2">
-                    <span className="text-xl font-bold text-slate-900">{game.homeTeam}</span>
+                    <span className="text-xl font-bold text-slate-900">{getTeamDisplayName(game.homeTeam)}</span>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleScoreChange(game, 'home', -1)}
@@ -209,7 +209,7 @@ export default function Live() {
 
                   {/* Away Team */}
                   <div className="flex flex-col items-center w-1/3 gap-2">
-                    <span className="text-xl font-bold text-slate-900">{game.awayTeam}</span>
+                    <span className="text-xl font-bold text-slate-900">{getTeamDisplayName(game.awayTeam)}</span>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleScoreChange(game, 'away', -1)}

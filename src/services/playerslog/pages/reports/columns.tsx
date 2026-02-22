@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import type { GollReport } from '@/services/playerslog/types';
-import { GOLL_REPORT_STATUS, GOLL_REPORT_STATUS_LABEL } from '@/services/playerslog/constants';
+import { GOLL_REPORT_STATUS, GOLL_REPORT_STATUS_LABEL, getTeamDisplayName } from '@/services/playerslog/constants';
 
 function TeamRelationCell({ report }: { report: GollReport }) {
   if (!report.reporterTeam && !report.authorTeam) {
@@ -11,8 +11,8 @@ function TeamRelationCell({ report }: { report: GollReport }) {
     );
   }
 
-  const reporterLabel = report.reporterTeam ?? '미설정';
-  const authorLabel = report.authorTeam ?? '미설정';
+  const reporterLabel = getTeamDisplayName(report.reporterTeam);
+  const authorLabel = getTeamDisplayName(report.authorTeam);
 
   if (report.isSameTeam) {
     return (

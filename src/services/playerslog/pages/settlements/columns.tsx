@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import type { Game } from '@/services/playerslog/types';
-import { GAME_STATUS, SETTLEMENT_STATUS, MVP_TYPE, MVP_POSITION } from '@/services/playerslog/constants';
+import { GAME_STATUS, SETTLEMENT_STATUS, MVP_TYPE, MVP_POSITION, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { Trophy, CheckCircle2, AlertCircle } from 'lucide-react';
 import { DataTableColumnHeader } from '@/shared/components/data-table';
 
@@ -22,7 +22,7 @@ export function getSettlementsColumns(meta: SettlementsColumnMeta): ColumnDef<Ga
         return (
           <div>
             <div className="font-medium text-slate-900">{game.date}</div>
-            <div className="text-xs text-slate-600 mt-0.5">{game.stadium}</div>
+            <div className="text-xs text-slate-600 mt-0.5">{getStadiumDisplayName(game.stadium)}</div>
           </div>
         );
       },
@@ -35,11 +35,11 @@ export function getSettlementsColumns(meta: SettlementsColumnMeta): ColumnDef<Ga
         return (
           <div>
             <div className="flex items-center justify-center gap-3">
-              <span className={`font-bold ${game.winner === game.homeTeam ? 'text-blue-600' : 'text-slate-700'}`}>{game.homeTeam}</span>
+              <span className={`font-bold ${game.winner === game.homeTeam ? 'text-blue-600' : 'text-slate-700'}`}>{getTeamDisplayName(game.homeTeam)}</span>
               <span className="bg-slate-100 px-2 py-1 rounded text-slate-800 font-mono font-bold">
                 {game.homeScore} : {game.awayScore}
               </span>
-              <span className={`font-bold ${game.winner === game.awayTeam ? 'text-blue-600' : 'text-slate-700'}`}>{game.awayTeam}</span>
+              <span className={`font-bold ${game.winner === game.awayTeam ? 'text-blue-600' : 'text-slate-700'}`}>{getTeamDisplayName(game.awayTeam)}</span>
             </div>
             {game.status === GAME_STATUS.CANCELLED && (
               <div className="text-center text-xs text-red-500 mt-1 font-medium">({game.cancellationReason || '취소'})</div>

@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import type { Game } from '@/services/playerslog/types';
-import { GAME_STATUS } from '@/services/playerslog/constants';
+import { GAME_STATUS, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { Clock, MapPin, RefreshCw, Edit2 } from 'lucide-react';
 import { DataTableColumnHeader } from '@/shared/components/data-table';
 
@@ -44,7 +44,7 @@ export function getGamesColumns(meta: GamesColumnMeta): ColumnDef<Game, unknown>
         return (
           <div className={`flex flex-col ${isCancelled ? 'opacity-50' : ''}`}>
             <div className="font-bold text-slate-800 flex items-center gap-2">
-              {game.homeTeam} <span className="text-slate-400 font-normal text-xs">vs</span> {game.awayTeam}
+              {getTeamDisplayName(game.homeTeam)} <span className="text-slate-400 font-normal text-xs">vs</span> {getTeamDisplayName(game.awayTeam)}
             </div>
             <span className="text-xs text-slate-500">{game.seriesNumber}차전</span>
           </div>
@@ -60,7 +60,7 @@ export function getGamesColumns(meta: GamesColumnMeta): ColumnDef<Game, unknown>
       cell: ({ row }) => (
         <div className="flex items-center gap-1.5 text-slate-600">
           <MapPin size={14} className="text-slate-400" />
-          {row.original.stadium}
+          {getStadiumDisplayName(row.original.stadium)}
         </div>
       ),
     },

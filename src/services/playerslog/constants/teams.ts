@@ -19,7 +19,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#074CA1',
     secondaryColor: '#FFFFFF',
     city: '대구',
-    stadium: '대구삼성라이온즈파크',
+    stadium: 'daegu',
   },
   {
     id: 'doosan',
@@ -29,7 +29,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#131230',
     secondaryColor: '#ED1C24',
     city: '서울',
-    stadium: '잠실야구장',
+    stadium: 'jamsil',
   },
   {
     id: 'lg',
@@ -39,7 +39,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#C30452',
     secondaryColor: '#000000',
     city: '서울',
-    stadium: '잠실야구장',
+    stadium: 'jamsil',
   },
   {
     id: 'kiwoom',
@@ -49,7 +49,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#820024',
     secondaryColor: '#000000',
     city: '서울',
-    stadium: '고척스카이돔',
+    stadium: 'gocheok',
   },
   {
     id: 'kia',
@@ -59,7 +59,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#EA0029',
     secondaryColor: '#000000',
     city: '광주',
-    stadium: '광주기아챔피언스필드',
+    stadium: 'gwangju',
   },
   {
     id: 'kt',
@@ -69,7 +69,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#000000',
     secondaryColor: '#EB1C2D',
     city: '수원',
-    stadium: '수원KT위즈파크',
+    stadium: 'suwon',
   },
   {
     id: 'ssg',
@@ -79,7 +79,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#CE0E2D',
     secondaryColor: '#FFD700',
     city: '인천',
-    stadium: '인천SSG랜더스필드',
+    stadium: 'incheon',
   },
   {
     id: 'nc',
@@ -89,7 +89,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#315288',
     secondaryColor: '#C6AA76',
     city: '창원',
-    stadium: '창원NC파크',
+    stadium: 'changwon',
   },
   {
     id: 'lotte',
@@ -99,7 +99,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#041E42',
     secondaryColor: '#D00F31',
     city: '부산',
-    stadium: '사직야구장',
+    stadium: 'sajik',
   },
   {
     id: 'hanwha',
@@ -109,7 +109,7 @@ export const KBO_TEAMS: KboTeam[] = [
     primaryColor: '#FF6600',
     secondaryColor: '#000000',
     city: '대전',
-    stadium: '한화생명이글스파크',
+    stadium: 'daejeon',
   },
 ];
 
@@ -121,4 +121,10 @@ export const getTeamByName = (name: string): KboTeam | undefined => {
   return KBO_TEAMS.find(
     (team) => team.name === name || team.shortName === name
   );
+};
+
+export const getTeamDisplayName = (teamId: string | null | undefined): string => {
+  if (!teamId) return '미설정';
+  const team = KBO_TEAMS.find((t) => t.id === teamId);
+  return team?.name ?? teamId;
 };

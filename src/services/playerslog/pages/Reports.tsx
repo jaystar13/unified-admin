@@ -3,7 +3,7 @@ import { type PaginationState } from '@tanstack/react-table';
 import { Flag, AlertTriangle } from 'lucide-react';
 import { useReports } from '@/services/playerslog/hooks/useReports';
 import type { GollReport } from '@/services/playerslog/types';
-import { GOLL_REPORT_STATUS, GOLL_REPORT_STATUS_LABEL } from '@/services/playerslog/constants';
+import { GOLL_REPORT_STATUS, GOLL_REPORT_STATUS_LABEL, getTeamDisplayName } from '@/services/playerslog/constants';
 import { DataTable, DataTablePagination } from '@/shared/components/data-table';
 import { getReportsColumns } from './reports/columns';
 
@@ -128,11 +128,11 @@ export default function Reports() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-center">
                     <label className="text-[10px] font-semibold text-slate-400 block mb-1">신고자 팀</label>
-                    <p className="font-bold text-sm text-slate-900">{selectedReport.reporterTeam ?? '미설정'}</p>
+                    <p className="font-bold text-sm text-slate-900">{getTeamDisplayName(selectedReport.reporterTeam)}</p>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-center">
                     <label className="text-[10px] font-semibold text-slate-400 block mb-1">작성자 팀</label>
-                    <p className="font-bold text-sm text-slate-900">{selectedReport.authorTeam ?? '미설정'}</p>
+                    <p className="font-bold text-sm text-slate-900">{getTeamDisplayName(selectedReport.authorTeam)}</p>
                   </div>
                 </div>
 
@@ -167,8 +167,8 @@ function TeamRelationBanner({ report }: { report: GollReport }) {
     );
   }
 
-  const reporterLabel = report.reporterTeam ?? '미설정';
-  const authorLabel = report.authorTeam ?? '미설정';
+  const reporterLabel = getTeamDisplayName(report.reporterTeam);
+  const authorLabel = getTeamDisplayName(report.authorTeam);
 
   if (report.isSameTeam) {
     return (

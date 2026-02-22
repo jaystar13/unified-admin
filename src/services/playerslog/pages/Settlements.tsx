@@ -8,7 +8,7 @@ import { useGames, useUpdateGame } from '@/services/playerslog/hooks/useGames';
 import { useProcessSettlement, useCancelSettlement } from '@/services/playerslog/hooks/useSettlements';
 
 import type { Game, UpdateGameInput } from '@/services/playerslog/types';
-import { GAME_STATUS, SETTLEMENT_STATUS, MVP_TYPE, MVP_POSITION } from '@/services/playerslog/constants';
+import { GAME_STATUS, SETTLEMENT_STATUS, MVP_TYPE, MVP_POSITION, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { DataTable, DataTableToolbar, DataTablePagination } from '@/shared/components/data-table';
 import { getSettlementsColumns } from './settlements/columns';
 
@@ -105,7 +105,7 @@ export default function Settlements() {
       alert('경기 결과(승리팀)가 입력되지 않았습니다. 결과수정에서 먼저 입력해주세요.');
       return;
     }
-    if (!confirm(`${game.homeTeam} vs ${game.awayTeam} 경기를 정산하시겠습니까?\n예측 참여자에게 포인트가 지급됩니다.`)) return;
+    if (!confirm(`${getTeamDisplayName(game.homeTeam)} vs ${getTeamDisplayName(game.awayTeam)} 경기를 정산하시겠습니까?\n예측 참여자에게 포인트가 지급됩니다.`)) return;
 
     processSettlement.mutate(game.id, {
       onSuccess: (result) => {
@@ -118,7 +118,7 @@ export default function Settlements() {
   };
 
   const handleCancelSettlement = (game: Game) => {
-    if (!confirm(`${game.homeTeam} vs ${game.awayTeam} 경기의 정산을 취소하시겠습니까?\n지급된 포인트가 모두 회수됩니다.`)) return;
+    if (!confirm(`${getTeamDisplayName(game.homeTeam)} vs ${getTeamDisplayName(game.awayTeam)} 경기의 정산을 취소하시겠습니까?\n지급된 포인트가 모두 회수됩니다.`)) return;
 
     cancelSettlement.mutate(game.id, {
       onSuccess: (result) => {
@@ -138,7 +138,7 @@ export default function Settlements() {
       if (dateFilter && !game.date.startsWith(dateFilter)) return false;
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        const target = `${game.homeTeam} ${game.awayTeam} ${game.stadium} ${game.mvp || ''} ${game.date}`.toLowerCase();
+        const target = `${getTeamDisplayName(game.homeTeam)} ${getTeamDisplayName(game.awayTeam)} ${getStadiumDisplayName(game.stadium)} ${game.mvp || ''} ${game.date}`.toLowerCase();
         if (!target.includes(term)) return false;
       }
       return true;
@@ -262,7 +262,7 @@ export default function Settlements() {
                 <label className="text-xs font-bold text-slate-500 uppercase">스코어 입력</label>
                 <div className="flex items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                   <div className="text-center w-1/3">
-                    <div className="font-bold text-slate-700 mb-2">{editingGame.homeTeam} (Home)</div>
+                    <div className="font-bold text-slate-700 mb-2">{getTeamDisplayName(editingGame.homeTeam)} (Home)</div>
                     <input
                       type="number"
                       min="0"
@@ -273,7 +273,7 @@ export default function Settlements() {
                   </div>
                   <div className="text-slate-400 font-black text-xl">:</div>
                   <div className="text-center w-1/3">
-                    <div className="font-bold text-slate-700 mb-2">{editingGame.awayTeam} (Away)</div>
+                    <div className="font-bold text-slate-700 mb-2">{getTeamDisplayName(editingGame.awayTeam)} (Away)</div>
                     <input
                       type="number"
                       min="0"
@@ -297,7 +297,7 @@ export default function Settlements() {
                         ? 'bg-blue-600 text-white border-blue-600 ring-2 ring-blue-200'
                         : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'}`}
                   >
-                    {editingGame.homeTeam} 승리
+                    {getTeamDisplayName(editingGame.homeTeam)} 승리
                   </button>
                   <button
                     type="button"
@@ -307,7 +307,7 @@ export default function Settlements() {
                         ? 'bg-blue-600 text-white border-blue-600 ring-2 ring-blue-200'
                         : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'}`}
                   >
-                    {editingGame.awayTeam} 승리
+                    {getTeamDisplayName(editingGame.awayTeam)} 승리
                   </button>
                 </div>
               </div>

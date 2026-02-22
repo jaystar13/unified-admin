@@ -14,7 +14,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '잠실',
     city: '서울',
     capacity: 25000,
-    homeTeams: ['두산 베어스', 'LG 트윈스'],
+    homeTeams: ['doosan', 'lg'],
   },
   {
     id: 'gocheok',
@@ -22,7 +22,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '고척',
     city: '서울',
     capacity: 16813,
-    homeTeams: ['키움 히어로즈'],
+    homeTeams: ['kiwoom'],
   },
   {
     id: 'incheon',
@@ -30,7 +30,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '문학',
     city: '인천',
     capacity: 23000,
-    homeTeams: ['SSG 랜더스'],
+    homeTeams: ['ssg'],
   },
   {
     id: 'suwon',
@@ -38,7 +38,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '수원',
     city: '수원',
     capacity: 20000,
-    homeTeams: ['KT 위즈'],
+    homeTeams: ['kt'],
   },
   {
     id: 'daegu',
@@ -46,7 +46,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '대구',
     city: '대구',
     capacity: 24000,
-    homeTeams: ['삼성 라이온즈'],
+    homeTeams: ['samsung'],
   },
   {
     id: 'gwangju',
@@ -54,7 +54,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '광주',
     city: '광주',
     capacity: 27000,
-    homeTeams: ['KIA 타이거즈'],
+    homeTeams: ['kia'],
   },
   {
     id: 'daejeon',
@@ -62,7 +62,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '대전',
     city: '대전',
     capacity: 13000,
-    homeTeams: ['한화 이글스'],
+    homeTeams: ['hanwha'],
   },
   {
     id: 'changwon',
@@ -70,7 +70,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '창원',
     city: '창원',
     capacity: 22000,
-    homeTeams: ['NC 다이노스'],
+    homeTeams: ['nc'],
   },
   {
     id: 'sajik',
@@ -78,7 +78,7 @@ export const STADIUMS: Stadium[] = [
     shortName: '사직',
     city: '부산',
     capacity: 24500,
-    homeTeams: ['롯데 자이언츠'],
+    homeTeams: ['lotte'],
   },
 ];
 
@@ -90,4 +90,10 @@ export const getStadiumByName = (name: string): Stadium | undefined => {
   return STADIUMS.find(
     (stadium) => stadium.name === name || stadium.shortName === name
   );
+};
+
+export const getStadiumDisplayName = (stadiumId: string | null | undefined): string => {
+  if (!stadiumId) return '미설정';
+  const stadium = STADIUMS.find((s) => s.id === stadiumId);
+  return stadium?.name ?? stadiumId;
 };

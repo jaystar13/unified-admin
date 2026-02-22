@@ -7,7 +7,7 @@ import {
 import * as XLSX from 'xlsx';
 import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useBulkCreateGames } from '@/services/playerslog/hooks/useGames';
 import type { Game, CreateGameInput, UpdateGameInput } from '@/services/playerslog/types';
-import { GAME_STATUS, KBO_TEAMS, STADIUMS, getTeamByName, getStadiumByName } from '@/services/playerslog/constants';
+import { GAME_STATUS, KBO_TEAMS, STADIUMS, getTeamByName, getTeamById, getTeamDisplayName, getStadiumByName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { DataTable, DataTableToolbar, DataTablePagination } from '@/shared/components/data-table';
 import { getGamesColumns } from './games/columns';
 import { Popover, PopoverTrigger, PopoverContent } from '@/shared/components/ui/popover';
@@ -52,8 +52,8 @@ function parseMatchup(matchStr: string): { homeTeam: string; awayTeam: string; e
   if (!homeTeam) errors.push(`팀 "${homeShort}" 매핑 실패`);
 
   return {
-    homeTeam: homeTeam?.name ?? homeShort,
-    awayTeam: awayTeam?.name ?? awayShort,
+    homeTeam: homeTeam?.id ?? homeShort,
+    awayTeam: awayTeam?.id ?? awayShort,
     error: errors.length > 0 ? errors.join(', ') : undefined,
   };
 }
@@ -245,7 +245,7 @@ export default function Games() {
           time,
           homeTeam: matchup.homeTeam,
           awayTeam: matchup.awayTeam,
-          stadium: stadium?.name ?? rawStadium,
+          stadium: stadium?.id ?? rawStadium,
           seriesNumber: 1,
           error: errors.length > 0 ? errors.join('; ') : undefined,
         };
@@ -478,7 +478,7 @@ export default function Games() {
                       required
                       value={formData.homeTeam}
                       onChange={(e) => {
-                        const team = getTeamByName(e.target.value);
+                        const team = getTeamById(e.target.value);
                         setFormData({
                           ...formData,
                           homeTeam: e.target.value,
@@ -489,7 +489,7 @@ export default function Games() {
                     >
                       <option value="">팀 선택</option>
                       {KBO_TEAMS.map((team) => (
-                        <option key={team.id} value={team.name}>{team.name}</option>
+                        <option key={team.id} value={team.id}>{team.name}</option>
                       ))}
                     </select>
                   </div>
@@ -503,7 +503,7 @@ export default function Games() {
                     >
                       <option value="">팀 선택</option>
                       {KBO_TEAMS.map((team) => (
-                        <option key={team.id} value={team.name}>{team.name}</option>
+                        <option key={team.id} value={team.id}>{team.name}</option>
                       ))}
                     </select>
                   </div>
@@ -517,7 +517,7 @@ export default function Games() {
                     >
                       <option value="">구장 선택</option>
                       {STADIUMS.map((stadium) => (
-                        <option key={stadium.id} value={stadium.name}>{stadium.name}</option>
+                        <option key={stadium.id} value={stadium.id}>{stadium.name}</option>
                       ))}
                     </select>
                   </div>
@@ -700,9 +700,9 @@ export default function Games() {
                             <td className="px-3 py-2 text-slate-400">{idx + 1}</td>
                             <td className="px-3 py-2">{game.date}</td>
                             <td className="px-3 py-2">{game.time}</td>
-                            <td className="px-3 py-2 font-medium">{game.homeTeam}</td>
-                            <td className="px-3 py-2 font-medium">{game.awayTeam}</td>
-                            <td className="px-3 py-2">{game.stadium}</td>
+                            <td className="px-3 py-2 font-medium">{getTeamDisplayName(game.homeTeam)}</td>
+                            <td className="px-3 py-2 font-medium">{getTeamDisplayName(game.awayTeam)}</td>
+                            <td className="px-3 py-2">{getStadiumDisplayName(game.stadium)}</td>
                             <td className="px-3 py-2 text-center">{game.seriesNumber}</td>
                             <td className="px-3 py-2">
                               {game.error ? (
