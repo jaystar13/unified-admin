@@ -1,4 +1,4 @@
-export type GameStatus = '예정' | '진행중' | '종료' | '취소';
+export type GameStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'SUSPENDED' | 'FINISHED' | 'CANCELLED';
 export type SettlementStatus = '미정산' | '정산완료';
 export type MvpType = 'Pitcher' | 'Batter';
 export type MvpPosition = 'Starter' | 'Middle' | 'Closer' | 'Top' | 'Center' | 'Bottom';

@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import type { Game } from '@/services/playerslog/types';
-import { GAME_STATUS, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
+import { GAME_STATUS, GAME_STATUS_LABEL, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { Clock, MapPin, RefreshCw, Edit2 } from 'lucide-react';
 import { DataTableColumnHeader } from '@/shared/components/data-table';
 
@@ -79,9 +79,10 @@ export function getGamesColumns(meta: GamesColumnMeta): ColumnDef<Game, unknown>
               ${game.status === GAME_STATUS.SCHEDULED ? 'bg-blue-50 text-blue-700 border-blue-100' :
                 game.status === GAME_STATUS.FINISHED ? 'bg-slate-100 text-slate-600 border-slate-200' :
                 game.status === GAME_STATUS.CANCELLED ? 'bg-red-50 text-red-700 border-red-100' :
-                'bg-amber-50 text-amber-700 border-amber-100'
+                game.status === GAME_STATUS.SUSPENDED ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                'bg-green-50 text-green-700 border-green-100'
               }`}>
-              {game.status}
+              {GAME_STATUS_LABEL[game.status] || game.status}
             </span>
             {isCancelled && game.cancellationReason && (
               <div className="text-xs text-red-600 mt-1 font-medium pl-1">

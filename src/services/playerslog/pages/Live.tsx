@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { useGames, useUpdateGame } from '@/services/playerslog/hooks/useGames';
 import type { Game, UpdateGameInput } from '@/services/playerslog/types';
-import { GAME_STATUS, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
+import { GAME_STATUS, GAME_STATUS_LABEL, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
 
 export default function Live() {
   const [targetDate, setTargetDate] = useState(new Date().toISOString().split('T')[0]);
@@ -17,7 +17,7 @@ export default function Live() {
   const updateGame = useUpdateGame();
 
   const filteredGames = allGames.filter((g) => g.date === targetDate);
-  const ongoingCount = filteredGames.filter((g) => g.status === GAME_STATUS.IN_PROGRESS).length;
+  const ongoingCount = filteredGames.filter((g) => g.status === GAME_STATUS.IN_PROGRESS || g.status === GAME_STATUS.SUSPENDED).length;
   const finishedCount = filteredGames.filter((g) => g.status === GAME_STATUS.FINISHED || g.status === GAME_STATUS.CANCELLED).length;
 
   const doUpdate = (id: number, data: UpdateGameInput) => {
@@ -49,7 +49,7 @@ export default function Live() {
       doUpdate(gameId, { status: GAME_STATUS.IN_PROGRESS, detailStatus: '' });
     } else if (action === 'reset') {
       if (confirm('경기 상태를 [예정]으로 초기화하시겠습니까? 점수도 0:0으로 초기화됩니다.')) {
-        doUpdate(gameId, { status: GAME_STATUS.SCHEDULED, detailStatus: '', homeScore: 0, awayScore: 0 });
+        doUpdate(gameId, { status: GAME_STATUS.SCHEDULED, detailStatus: '', cancellationReason: '', homeScore: 0, awayScore: 0 });
       }
     }
   };
@@ -65,7 +65,7 @@ export default function Live() {
       });
     } else if (activeModal === 'suspend') {
       doUpdate(selectedGameId, {
-        status: GAME_STATUS.IN_PROGRESS,
+        status: GAME_STATUS.SUSPENDED,
         detailStatus: reasonInput,
       });
     }
@@ -140,7 +140,7 @@ export default function Live() {
             <p className="text-xs text-slate-400 mt-1">상단 날짜를 변경하거나 경기 일정 메뉴에서 일정을 등록하세요.</p>
           </div>
         ) : filteredGames.map((game) => {
-          const isSuspended = game.detailStatus && game.detailStatus.includes('중단');
+          const isSuspended = game.status === GAME_STATUS.SUSPENDED;
 
           return (
             <div key={game.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col group">
@@ -160,10 +160,11 @@ export default function Live() {
                   )}
                   <span className={`px-2 py-0.5 rounded text-xs font-bold border
                     ${game.status === GAME_STATUS.IN_PROGRESS ? 'bg-red-100 text-red-600 border-red-200' :
+                      game.status === GAME_STATUS.SUSPENDED ? 'bg-amber-100 text-amber-700 border-amber-200' :
                       game.status === GAME_STATUS.SCHEDULED ? 'bg-blue-100 text-blue-600 border-blue-200' :
                       game.status === GAME_STATUS.CANCELLED ? 'bg-slate-100 text-slate-500 line-through border-slate-200' :
                       'bg-gray-800 text-white border-gray-900'}`}>
-                    {game.status}
+                    {GAME_STATUS_LABEL[game.status] || game.status}
                   </span>
                 </div>
               </div>
@@ -264,43 +265,41 @@ export default function Live() {
 
                 {game.status === GAME_STATUS.IN_PROGRESS && (
                   <>
-                    {isSuspended ? (
-                      <>
-                        <button
-                          onClick={() => handleStatusAction('resume', game.id)}
-                          className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-bold transition-colors animate-pulse"
-                        >
-                          <PlayCircle size={16} /> 경기 재개
-                        </button>
-                        <button
-                          onClick={() => handleStatusAction('cancel_prompt', game.id)}
-                          className="flex items-center justify-center gap-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 py-2 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <XCircle size={16} /> 우천 취소
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => handleStatusAction('finish', game.id)}
-                          className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-sm font-bold transition-colors"
-                        >
-                          <CheckCircle2 size={16} /> 경기 종료
-                        </button>
-                        <button
-                          onClick={() => handleStatusAction('suspend_prompt', game.id)}
-                          className="flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-200 py-2 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <PauseCircle size={16} /> 일시 중단
-                        </button>
-                        <button
-                          onClick={() => handleStatusAction('cancel_prompt', game.id)}
-                          className="col-span-2 flex items-center justify-center gap-2 border border-slate-200 hover:bg-red-50 hover:text-red-600 text-slate-500 py-2 rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <XCircle size={16} /> 취소 처리 (노게임/콜드)
-                        </button>
-                      </>
-                    )}
+                    <button
+                      onClick={() => handleStatusAction('finish', game.id)}
+                      className="flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-900 text-white py-2 rounded-lg text-sm font-bold transition-colors"
+                    >
+                      <CheckCircle2 size={16} /> 경기 종료
+                    </button>
+                    <button
+                      onClick={() => handleStatusAction('suspend_prompt', game.id)}
+                      className="flex items-center justify-center gap-2 bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-200 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <PauseCircle size={16} /> 일시 중단
+                    </button>
+                    <button
+                      onClick={() => handleStatusAction('cancel_prompt', game.id)}
+                      className="col-span-2 flex items-center justify-center gap-2 border border-slate-200 hover:bg-red-50 hover:text-red-600 text-slate-500 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <XCircle size={16} /> 취소 처리 (노게임/콜드)
+                    </button>
+                  </>
+                )}
+
+                {game.status === GAME_STATUS.SUSPENDED && (
+                  <>
+                    <button
+                      onClick={() => handleStatusAction('resume', game.id)}
+                      className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-bold transition-colors animate-pulse"
+                    >
+                      <PlayCircle size={16} /> 경기 재개
+                    </button>
+                    <button
+                      onClick={() => handleStatusAction('cancel_prompt', game.id)}
+                      className="flex items-center justify-center gap-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 py-2 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <XCircle size={16} /> 우천 취소
+                    </button>
                   </>
                 )}
 
@@ -334,7 +333,7 @@ export default function Live() {
               <p className="text-sm text-slate-600">
                 {activeModal === 'cancel'
                   ? '경기를 취소 상태로 변경합니다. 취소 사유를 선택해주세요.'
-                  : '경기를 진행 중 상태로 유지하되, 중단(Suspended) 상태로 표시합니다.'}
+                  : '경기를 일시중단 상태로 변경합니다. 중단 사유를 선택해주세요.'}
               </p>
 
               <div className="space-y-1">

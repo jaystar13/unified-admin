@@ -7,7 +7,7 @@ import {
 import * as XLSX from 'xlsx';
 import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useBulkCreateGames } from '@/services/playerslog/hooks/useGames';
 import type { Game, CreateGameInput, UpdateGameInput } from '@/services/playerslog/types';
-import { GAME_STATUS, KBO_TEAMS, STADIUMS, getTeamByName, getTeamById, getTeamDisplayName, getStadiumByName, getStadiumDisplayName } from '@/services/playerslog/constants';
+import { GAME_STATUS, GAME_STATUS_LABEL, KBO_TEAMS, STADIUMS, getTeamByName, getTeamById, getTeamDisplayName, getStadiumByName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { DataTable, DataTableToolbar, DataTablePagination } from '@/shared/components/data-table';
 import { getGamesColumns } from './games/columns';
 import { Popover, PopoverTrigger, PopoverContent } from '@/shared/components/ui/popover';
@@ -347,7 +347,7 @@ export default function Games() {
                         checked={statusFilter.includes(status)}
                         onCheckedChange={() => toggleStatusFilter(status)}
                       />
-                      <span className="text-sm">{status}</span>
+                      <span className="text-sm">{GAME_STATUS_LABEL[status] || status}</span>
                     </label>
                   ))}
                 </div>
@@ -363,7 +363,7 @@ export default function Games() {
                       variant="secondary"
                       className="gap-1 pr-1"
                     >
-                      {status}
+                      {GAME_STATUS_LABEL[status] || status}
                       <button
                         onClick={() => toggleStatusFilter(status)}
                         className="rounded-full hover:bg-slate-300 p-0.5"
@@ -550,6 +550,7 @@ export default function Games() {
                     >
                       <option value={GAME_STATUS.SCHEDULED}>예정</option>
                       <option value={GAME_STATUS.IN_PROGRESS}>진행중</option>
+                      <option value={GAME_STATUS.SUSPENDED}>일시중단</option>
                       <option value={GAME_STATUS.FINISHED}>종료</option>
                       <option value={GAME_STATUS.CANCELLED}>취소</option>
                     </select>

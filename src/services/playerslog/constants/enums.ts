@@ -1,6 +1,15 @@
 export const GAME_STATUS = {
+  SCHEDULED: 'SCHEDULED',
+  IN_PROGRESS: 'IN_PROGRESS',
+  SUSPENDED: 'SUSPENDED',
+  FINISHED: 'FINISHED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export const GAME_STATUS_LABEL: Record<string, string> = {
   SCHEDULED: '예정',
   IN_PROGRESS: '진행중',
+  SUSPENDED: '일시중단',
   FINISHED: '종료',
   CANCELLED: '취소',
 } as const;
