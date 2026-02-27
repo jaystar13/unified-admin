@@ -11,7 +11,7 @@ export const gollsApi = {
   },
 
   getGoll: async (id: number) => {
-    const { data } = await apiClient.get<Goll>(`/golls/${id}`);
+    const { data } = await apiClient.get<Goll>(`/golls/admin/${id}`);
     return data;
   },
 

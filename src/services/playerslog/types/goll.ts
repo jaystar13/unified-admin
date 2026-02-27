@@ -3,6 +3,14 @@ export type GollStatus = 'active' | 'hidden';
 export type ReportStatus = 'normal' | 'reported';
 export type Prediction = 'Win' | 'Loss';
 
+export interface GollLink {
+  url: string;
+  title?: string;
+  description?: string;
+  thumbnailUrl?: string;
+  siteName?: string;
+}
+
 export interface Goll {
   id: number;
   type: GollType;
@@ -12,8 +20,14 @@ export interface Goll {
   authorId: string;
   prediction?: Prediction;
   mvp?: string;
+  mvpType?: string;
+  mvpPosition?: string;
   link?: string;
+  links?: GollLink[];
   gameId?: number;
+  // Review-specific fields
+  reactionEmoji?: string;
+  decisiveMoment?: string;
   status: GollStatus;
   reportStatus: ReportStatus;
   reportReason?: string;
