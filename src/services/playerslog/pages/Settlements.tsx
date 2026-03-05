@@ -47,7 +47,7 @@ export default function Settlements() {
     setFormData({
       homeScore: game.homeScore || 0,
       awayScore: game.awayScore || 0,
-      winner: game.winner || (game.homeScore > game.awayScore ? game.homeTeam : game.awayScore > game.homeScore ? game.awayTeam : ''),
+      winner: game.winner || (game.homeScore > game.awayScore ? game.homeTeam : game.awayScore > game.homeScore ? game.awayTeam : game.homeScore === game.awayScore && game.homeScore > 0 ? 'draw' : ''),
       mvp: game.mvp || '',
       mvpType: game.mvpType,
       mvpPosition: game.mvpPosition,
@@ -67,13 +67,14 @@ export default function Settlements() {
   const handleSave = (autoSettle = false) => {
     if (!editingGame) return;
 
+    const isDraw = formData.winner === 'draw';
     const updates: UpdateGameInput = {
       homeScore: formData.homeScore,
       awayScore: formData.awayScore,
       winner: formData.winner,
-      mvp: formData.mvp,
-      mvpType: formData.mvpType,
-      mvpPosition: formData.mvpPosition,
+      mvp: isDraw ? '' : formData.mvp,
+      mvpType: isDraw ? undefined : formData.mvpType,
+      mvpPosition: isDraw ? undefined : formData.mvpPosition,
       status: GAME_STATUS.FINISHED,
     };
 
@@ -102,7 +103,7 @@ export default function Settlements() {
 
   const handleProcessSettlement = (game: Game) => {
     if (!game.winner) {
-      alert('경기 결과(승리팀)가 입력되지 않았습니다. 결과수정에서 먼저 입력해주세요.');
+      alert('경기 결과(승리팀/무승부)가 입력되지 않았습니다. 결과수정에서 먼저 입력해주세요.');
       return;
     }
     if (!confirm(`${getTeamDisplayName(game.homeTeam)} vs ${getTeamDisplayName(game.awayTeam)} 경기를 정산하시겠습니까?\n예측 참여자에게 포인트가 지급됩니다.`)) return;
@@ -287,8 +288,8 @@ export default function Settlements() {
 
               {/* Winner Section */}
               <div className="space-y-3">
-                <label className="text-xs font-bold text-slate-500 uppercase">승리팀 선택</label>
-                <div className="grid grid-cols-2 gap-3">
+                <label className="text-xs font-bold text-slate-500 uppercase">경기 결과 선택</label>
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, winner: editingGame.homeTeam })}
@@ -298,6 +299,16 @@ export default function Settlements() {
                         : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'}`}
                   >
                     {getTeamDisplayName(editingGame.homeTeam)} 승리
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, winner: 'draw', mvp: '', mvpType: undefined, mvpPosition: undefined })}
+                    className={`py-2 px-4 rounded-lg border font-bold transition-all
+                      ${formData.winner === 'draw'
+                        ? 'bg-slate-600 text-white border-slate-600 ring-2 ring-slate-200'
+                        : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'}`}
+                  >
+                    무승부
                   </button>
                   <button
                     type="button"
@@ -312,91 +323,102 @@ export default function Settlements() {
                 </div>
               </div>
 
-              <div className="border-t border-slate-200 my-4" />
-
-              {/* MVP Section */}
-              <div className="space-y-4">
-                <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1">
-                  <Trophy size={14} className="text-amber-500" /> MVP 선정
-                </label>
-
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="MVP 선수 이름 입력"
-                    value={formData.mvp || ''}
-                    onChange={(e) => setFormData({ ...formData, mvp: e.target.value })}
-                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                  />
-
-                  {/* Type */}
-                  <div className="flex bg-slate-100 p-1 rounded-lg">
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, mvpType: MVP_TYPE.PITCHER, mvpPosition: MVP_POSITION.STARTER })}
-                      className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all
-                        ${formData.mvpType === MVP_TYPE.PITCHER ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                      투수 (Pitcher)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, mvpType: MVP_TYPE.BATTER, mvpPosition: MVP_POSITION.CENTER })}
-                      className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all
-                        ${formData.mvpType === MVP_TYPE.BATTER ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                      타자 (Batter)
-                    </button>
+              {formData.winner === 'draw' ? (
+                <>
+                  <div className="border-t border-slate-200 my-4" />
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center text-sm text-slate-500">
+                    무승부 경기는 MVP를 선정하지 않습니다.
                   </div>
+                </>
+              ) : (
+                <>
+                  <div className="border-t border-slate-200 my-4" />
 
-                  {/* Position Detail */}
-                  {formData.mvpType && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {formData.mvpType === MVP_TYPE.PITCHER ? (
-                        <>
-                          {[
-                            { id: MVP_POSITION.STARTER, label: '선발승' },
-                            { id: MVP_POSITION.MIDDLE, label: '중간계투' },
-                            { id: MVP_POSITION.CLOSER, label: '마무리/세이브' },
-                          ].map((pos) => (
-                            <button
-                              key={pos.id}
-                              type="button"
-                              onClick={() => setFormData({ ...formData, mvpPosition: pos.id })}
-                              className={`py-1.5 px-2 text-xs font-medium rounded border transition-all
-                                ${formData.mvpPosition === pos.id
-                                  ? 'bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-200'
-                                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-                            >
-                              {pos.label}
-                            </button>
-                          ))}
-                        </>
-                      ) : (
-                        <>
-                          {[
-                            { id: MVP_POSITION.TOP, label: '선두 (1~2번)' },
-                            { id: MVP_POSITION.CENTER, label: '중심 (3~5번)' },
-                            { id: MVP_POSITION.BOTTOM, label: '하위 (6~9번)' },
-                          ].map((pos) => (
-                            <button
-                              key={pos.id}
-                              type="button"
-                              onClick={() => setFormData({ ...formData, mvpPosition: pos.id })}
-                              className={`py-1.5 px-2 text-xs font-medium rounded border transition-all
-                                ${formData.mvpPosition === pos.id
-                                  ? 'bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-200'
-                                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-                            >
-                              {pos.label}
-                            </button>
-                          ))}
-                        </>
+                  {/* MVP Section */}
+                  <div className="space-y-4">
+                    <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1">
+                      <Trophy size={14} className="text-amber-500" /> MVP 선정
+                    </label>
+
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        placeholder="MVP 선수 이름 입력"
+                        value={formData.mvp || ''}
+                        onChange={(e) => setFormData({ ...formData, mvp: e.target.value })}
+                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      />
+
+                      {/* Type */}
+                      <div className="flex bg-slate-100 p-1 rounded-lg">
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, mvpType: MVP_TYPE.PITCHER, mvpPosition: MVP_POSITION.STARTER })}
+                          className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all
+                            ${formData.mvpType === MVP_TYPE.PITCHER ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          투수 (Pitcher)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, mvpType: MVP_TYPE.BATTER, mvpPosition: MVP_POSITION.CENTER })}
+                          className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all
+                            ${formData.mvpType === MVP_TYPE.BATTER ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          타자 (Batter)
+                        </button>
+                      </div>
+
+                      {/* Position Detail */}
+                      {formData.mvpType && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {formData.mvpType === MVP_TYPE.PITCHER ? (
+                            <>
+                              {[
+                                { id: MVP_POSITION.STARTER, label: '선발승' },
+                                { id: MVP_POSITION.MIDDLE, label: '중간계투' },
+                                { id: MVP_POSITION.CLOSER, label: '마무리/세이브' },
+                              ].map((pos) => (
+                                <button
+                                  key={pos.id}
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, mvpPosition: pos.id })}
+                                  className={`py-1.5 px-2 text-xs font-medium rounded border transition-all
+                                    ${formData.mvpPosition === pos.id
+                                      ? 'bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-200'
+                                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                                >
+                                  {pos.label}
+                                </button>
+                              ))}
+                            </>
+                          ) : (
+                            <>
+                              {[
+                                { id: MVP_POSITION.TOP, label: '선두 (1~2번)' },
+                                { id: MVP_POSITION.CENTER, label: '중심 (3~5번)' },
+                                { id: MVP_POSITION.BOTTOM, label: '하위 (6~9번)' },
+                              ].map((pos) => (
+                                <button
+                                  key={pos.id}
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, mvpPosition: pos.id })}
+                                  className={`py-1.5 px-2 text-xs font-medium rounded border transition-all
+                                    ${formData.mvpPosition === pos.id
+                                      ? 'bg-amber-50 text-amber-700 border-amber-200 ring-1 ring-amber-200'
+                                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                                >
+                                  {pos.label}
+                                </button>
+                              ))}
+                            </>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex gap-3">

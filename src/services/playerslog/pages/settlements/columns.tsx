@@ -41,6 +41,9 @@ export function getSettlementsColumns(meta: SettlementsColumnMeta): ColumnDef<Ga
               </span>
               <span className={`font-bold ${game.winner === game.awayTeam ? 'text-blue-600' : 'text-slate-700'}`}>{getTeamDisplayName(game.awayTeam)}</span>
             </div>
+            {game.winner === 'draw' && (
+              <div className="text-center text-xs text-slate-500 mt-1 font-bold">무승부</div>
+            )}
             {game.status === GAME_STATUS.CANCELLED && (
               <div className="text-center text-xs text-red-500 mt-1 font-medium">({game.cancellationReason || '취소'})</div>
             )}
