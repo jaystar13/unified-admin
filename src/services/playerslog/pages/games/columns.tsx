@@ -1,6 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import type { Game } from '@/services/playerslog/types';
-import { GAME_STATUS, GAME_STATUS_LABEL, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
+import { GAME_STATUS, GAME_STATUS_LABEL, GAME_TYPE_LABEL, getTeamDisplayName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { Clock, MapPin, RefreshCw, Edit2 } from 'lucide-react';
 import { DataTableColumnHeader } from '@/shared/components/data-table';
 
@@ -63,6 +63,25 @@ export function getGamesColumns(meta: GamesColumnMeta): ColumnDef<Game, unknown>
           {getStadiumDisplayName(row.original.stadium)}
         </div>
       ),
+    },
+    {
+      accessorKey: 'gameType',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="유형" />
+      ),
+      cell: ({ row }) => {
+        const gameType = row.original.gameType;
+        const label = GAME_TYPE_LABEL[gameType] ?? gameType;
+        return (
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+            ${gameType === 'PRESEASON' ? 'bg-emerald-50 text-emerald-700' :
+              gameType === 'POSTSEASON' ? 'bg-purple-50 text-purple-700' :
+              'bg-slate-100 text-slate-600'
+            }`}>
+            {label}
+          </span>
+        );
+      },
     },
     {
       accessorKey: 'status',

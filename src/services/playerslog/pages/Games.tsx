@@ -7,7 +7,7 @@ import {
 import * as XLSX from 'xlsx';
 import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useBulkCreateGames } from '@/services/playerslog/hooks/useGames';
 import type { Game, CreateGameInput, UpdateGameInput } from '@/services/playerslog/types';
-import { GAME_STATUS, GAME_STATUS_LABEL, KBO_TEAMS, STADIUMS, getTeamByName, getTeamById, getTeamDisplayName, getStadiumByName, getStadiumDisplayName } from '@/services/playerslog/constants';
+import { GAME_STATUS, GAME_STATUS_LABEL, GAME_TYPE, GAME_TYPE_LABEL, KBO_TEAMS, STADIUMS, getTeamByName, getTeamById, getTeamDisplayName, getStadiumByName, getStadiumDisplayName } from '@/services/playerslog/constants';
 import { DataTable, DataTableToolbar, DataTablePagination } from '@/shared/components/data-table';
 import { getGamesColumns } from './games/columns';
 import { Popover, PopoverTrigger, PopoverContent } from '@/shared/components/ui/popover';
@@ -79,6 +79,7 @@ const INITIAL_FORM: Partial<Game> & { homeTeam: string; awayTeam: string } = {
   homeTeam: '',
   awayTeam: '',
   stadium: '',
+  gameType: GAME_TYPE.REGULAR,
   status: GAME_STATUS.SCHEDULED,
   seriesNumber: 1,
   isRescheduled: false,
@@ -95,6 +96,7 @@ export default function Games() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadSeason, setUploadSeason] = useState('2026');
+  const [uploadGameType, setUploadGameType] = useState<string>(GAME_TYPE.REGULAR);
   const [parsedGames, setParsedGames] = useState<ParsedGame[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
@@ -142,6 +144,7 @@ export default function Games() {
       homeTeam: cancelledGame.homeTeam,
       awayTeam: cancelledGame.awayTeam,
       stadium: cancelledGame.stadium,
+      gameType: cancelledGame.gameType,
       seriesNumber: cancelledGame.seriesNumber,
       isRescheduled: true,
       originalGameId: cancelledGame.id,
@@ -177,6 +180,7 @@ export default function Games() {
         homeTeam: formData.homeTeam!,
         awayTeam: formData.awayTeam!,
         stadium: formData.stadium!,
+        gameType: formData.gameType,
         seriesNumber: formData.seriesNumber,
         isRescheduled: formData.isRescheduled,
         originalGameId: formData.originalGameId,
@@ -199,6 +203,7 @@ export default function Games() {
 
   const openUploadModal = () => {
     setParsedGames([]);
+    setUploadGameType(GAME_TYPE.REGULAR);
     setIsUploadModalOpen(true);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -227,6 +232,7 @@ export default function Games() {
         const rawTime = row['시간'] ?? '';
         const rawMatch = row['경기'] ?? '';
         const rawStadium = row['장소'] ?? '';
+        const rawGameType = row['유형'] ?? '';
 
         const date = parseKoreanDate(rawDate, uploadSeason);
         if (!date) errors.push(`날짜 "${rawDate}" 파싱 실패`);
@@ -239,6 +245,11 @@ export default function Games() {
         const stadium = getStadiumByName(rawStadium.trim());
         if (!stadium) errors.push(`구장 "${rawStadium}" 매핑 실패`);
 
+        const gameTypeLabelToKey = Object.fromEntries(
+          Object.entries(GAME_TYPE_LABEL).map(([k, v]) => [v, k]),
+        );
+        const gameType = (rawGameType.trim() ? (gameTypeLabelToKey[rawGameType.trim()] ?? uploadGameType) : uploadGameType) as CreateGameInput['gameType'];
+
         return {
           season: uploadSeason,
           date,
@@ -246,6 +257,7 @@ export default function Games() {
           homeTeam: matchup.homeTeam,
           awayTeam: matchup.awayTeam,
           stadium: stadium?.id ?? rawStadium,
+          gameType,
           seriesNumber: 1,
           error: errors.length > 0 ? errors.join('; ') : undefined,
         };
@@ -425,7 +437,7 @@ export default function Games() {
             <div className="flex-1 overflow-y-auto p-6">
               <form id="schedule-form" onSubmit={handleSubmit} className="space-y-6">
                 {/* Basic Info */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">시즌</label>
                     <input
@@ -436,6 +448,18 @@ export default function Games() {
                       className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="2026"
                     />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500 uppercase">경기 유형</label>
+                    <select
+                      value={formData.gameType}
+                      onChange={(e) => setFormData({ ...formData, gameType: e.target.value as Game['gameType'] })}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {Object.values(GAME_TYPE).map((type) => (
+                        <option key={type} value={type}>{GAME_TYPE_LABEL[type]}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">대체 일정 여부</label>
@@ -645,25 +669,39 @@ export default function Games() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              <div className="flex items-end gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-500 uppercase">시즌</label>
-                  <input
-                    type="text"
-                    value={uploadSeason}
-                    onChange={(e) => setUploadSeason(e.target.value)}
-                    className="w-24 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="2026"
-                  />
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500 uppercase">시즌</label>
+                    <input
+                      type="text"
+                      value={uploadSeason}
+                      onChange={(e) => setUploadSeason(e.target.value)}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="2026"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500 uppercase">경기 유형</label>
+                    <select
+                      value={uploadGameType}
+                      onChange={(e) => setUploadGameType(e.target.value)}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      {Object.values(GAME_TYPE).map((type) => (
+                        <option key={type} value={type}>{GAME_TYPE_LABEL[type]}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div className="space-y-1 flex-1">
+                <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase">엑셀 파일</label>
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept=".xlsx,.xls"
                     onChange={handleFileChange}
-                    className="w-full border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   />
                 </div>
               </div>
@@ -691,6 +729,7 @@ export default function Games() {
                           <th className="px-3 py-2 text-left font-medium text-slate-600">홈팀</th>
                           <th className="px-3 py-2 text-left font-medium text-slate-600">원정팀</th>
                           <th className="px-3 py-2 text-left font-medium text-slate-600">구장</th>
+                          <th className="px-3 py-2 text-left font-medium text-slate-600">유형</th>
                           <th className="px-3 py-2 text-left font-medium text-slate-600">차수</th>
                           <th className="px-3 py-2 text-left font-medium text-slate-600">상태</th>
                         </tr>
@@ -704,6 +743,7 @@ export default function Games() {
                             <td className="px-3 py-2 font-medium">{getTeamDisplayName(game.homeTeam)}</td>
                             <td className="px-3 py-2 font-medium">{getTeamDisplayName(game.awayTeam)}</td>
                             <td className="px-3 py-2">{getStadiumDisplayName(game.stadium)}</td>
+                            <td className="px-3 py-2">{GAME_TYPE_LABEL[game.gameType ?? ''] ?? '정규시즌'}</td>
                             <td className="px-3 py-2 text-center">{game.seriesNumber}</td>
                             <td className="px-3 py-2">
                               {game.error ? (

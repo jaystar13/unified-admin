@@ -1,3 +1,15 @@
+export const GAME_TYPE = {
+  REGULAR: 'REGULAR',
+  PRESEASON: 'PRESEASON',
+  POSTSEASON: 'POSTSEASON',
+} as const;
+
+export const GAME_TYPE_LABEL: Record<string, string> = {
+  REGULAR: '정규시즌',
+  PRESEASON: '시범경기',
+  POSTSEASON: '포스트시즌',
+} as const;
+
 export const GAME_STATUS = {
   SCHEDULED: 'SCHEDULED',
   IN_PROGRESS: 'IN_PROGRESS',

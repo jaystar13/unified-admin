@@ -1,4 +1,5 @@
 export type GameStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'SUSPENDED' | 'FINISHED' | 'CANCELLED';
+export type GameType = 'REGULAR' | 'PRESEASON' | 'POSTSEASON';
 export type SettlementStatus = '미정산' | '정산완료';
 export type MvpType = 'Pitcher' | 'Batter';
 export type MvpPosition = 'Starter' | 'Middle' | 'Closer' | 'Top' | 'Center' | 'Bottom';
@@ -11,6 +12,7 @@ export interface Game {
   homeTeam: string;
   awayTeam: string;
   stadium: string;
+  gameType: GameType;
   status: GameStatus;
   homeScore: number;
   awayScore: number;
@@ -45,6 +47,7 @@ export interface CreateGameInput {
   homeTeam: string;
   awayTeam: string;
   stadium: string;
+  gameType?: GameType;
   seriesNumber?: number;
   isRescheduled?: boolean;
   originalGameId?: number;
