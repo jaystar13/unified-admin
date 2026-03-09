@@ -80,6 +80,23 @@ export const STADIUMS: Stadium[] = [
     capacity: 24500,
     homeTeams: ['lotte'],
   },
+  // 시범경기 등 서브 구장
+  {
+    id: 'masan',
+    name: '마산야구장',
+    shortName: '마산',
+    city: '창원',
+    capacity: 11000,
+    homeTeams: ['nc'],
+  },
+  {
+    id: 'icheon',
+    name: '이천베어스파크',
+    shortName: '이천',
+    city: '이천',
+    capacity: 2600,
+    homeTeams: ['doosan'],
+  },
 ];
 
 export const getStadiumById = (id: string): Stadium | undefined => {
