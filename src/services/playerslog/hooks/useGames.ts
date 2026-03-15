@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { gamesApi } from '@/services/playerslog/api';
-import type { CreateGameInput, UpdateGameInput } from '@/services/playerslog/types';
+import type { Game, CreateGameInput, UpdateGameInput } from '@/services/playerslog/types';
 
 export function useGames(filters?: { date?: string; status?: string }) {
   return useQuery({
@@ -39,7 +39,20 @@ export function useUpdateGame() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateGameInput }) =>
       gamesApi.updateGame(id, data),
-    onSuccess: () => {
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['games'] });
+      const previousGames = queryClient.getQueryData<Game[]>(['games']);
+      queryClient.setQueryData<Game[]>(['games'], (old) =>
+        old?.map((g) => (g.id === id ? { ...g, ...data } : g)),
+      );
+      return { previousGames };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousGames) {
+        queryClient.setQueryData(['games'], context.previousGames);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['games'] });
     },
   });

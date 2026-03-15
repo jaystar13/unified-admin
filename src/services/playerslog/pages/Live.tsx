@@ -16,7 +16,12 @@ export default function Live() {
   const { data: allGames = [], isLoading, refetch } = useGames();
   const updateGame = useUpdateGame();
 
-  const filteredGames = allGames.filter((g) => g.date === targetDate);
+  const filteredGames = allGames
+    .filter((g) => g.date === targetDate)
+    .sort((a, b) => {
+      if (a.time !== b.time) return a.time.localeCompare(b.time);
+      return a.id - b.id;
+    });
   const ongoingCount = filteredGames.filter((g) => g.status === GAME_STATUS.IN_PROGRESS || g.status === GAME_STATUS.SUSPENDED).length;
   const finishedCount = filteredGames.filter((g) => g.status === GAME_STATUS.FINISHED || g.status === GAME_STATUS.CANCELLED).length;
 
