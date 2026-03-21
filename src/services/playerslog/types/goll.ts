@@ -31,6 +31,7 @@ export interface Goll {
   status: GollStatus;
   reportStatus: ReportStatus;
   reportReason?: string;
+  viewCount: number;
   likeCount: number;
   createdAt: string;
   updatedAt: string;

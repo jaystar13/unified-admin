@@ -1,7 +1,7 @@
 import { type ColumnDef } from '@tanstack/react-table';
 import type { Goll } from '@/services/playerslog/types';
 import { GOLL_STATUS, REPORT_STATUS } from '@/services/playerslog/constants';
-import { Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle, BarChart2 } from 'lucide-react';
 
 export function getGollsColumns(): ColumnDef<Goll, unknown>[] {
   return [
@@ -38,6 +38,19 @@ export function getGollsColumns(): ColumnDef<Goll, unknown>[] {
       header: '작성자',
       cell: ({ row }) => (
         <span className="text-slate-600 text-xs">{row.original.author}</span>
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: 'viewCount',
+      header: () => <span className="text-center block">조회수</span>,
+      cell: ({ row }) => (
+        <div className="text-center">
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+            <BarChart2 size={12} />
+            {row.original.viewCount.toLocaleString()}
+          </span>
+        </div>
       ),
       enableSorting: false,
     },
